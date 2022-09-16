@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="admin-sapi-httpListenerConfig">
+        <http:listener-connection host="${https.host}" port="${https.port}" connectionIdleTimeout="${https.idletimeout}"/>
+    </http:listener-config>
+    <apikit:config name="admin-sapi-config" api="admin-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="8dfa33d5-49d9-4aa1-98dd-67df581d9a85" >
+		<db:my-sql-connection host="${database.host}" port="${database.port}" user="${database.username}" password="${secure::database.password}" database="${secure::database.db}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="c48ce88c-6c4d-4943-b775-a3c08ee05545" file="properties/${mule.env}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="783ca28c-bd66-4d38-95cd-44bc0507feb7" file="properties/${mule.env}-secure.yaml" key="${encryptionKey}" />
+	<configuration doc:name="Configuration" doc:id="1dbdf8c3-a105-499c-9d93-5e3648b6829b" defaultErrorHandler-ref="global_error_handler" />
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="f804c708-b7dd-496d-b677-ca653962d125" >
+		<email:smtps-connection host="${email.host}" port="${email.port}" user="${email.user}" password="${secure::email.password}" >
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</email:smtps-connection>
+	</email:smtp-config>
+	<api-gateway:autodiscovery apiId="${Autodiscovery.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="88d658c3-e74e-4afe-951d-774a316caa80" flowRef="admin-sapi-main" />
+	<global-property doc:name="Global Property" doc:id="41a95295-5449-46ef-8dd8-208f3fbfd1c8" name="mule.env" value="LOCAL" />
+	<global-property doc:name="Global Property" doc:id="770da02d-80da-4513-a03e-94632703f2f9" name="encryptionKey" value="sinuvasu12345678" />
+	
+	
+</mule>

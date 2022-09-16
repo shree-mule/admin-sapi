@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<sub-flow name="deleteAdminDetailsSub_Flow" doc:id="ad594968-3c83-4662-a7e7-7b53b5c08149" >
+		<logger level="INFO" doc:name="Process Started" doc:id="a8f99e19-98d8-4ecd-b2bc-0cb0d881bca8" message="######Deleting Records###########"/>
+		<db:delete doc:name="Database" doc:id="055b18f5-e660-48d4-a417-5ab793b08d7c" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM `Admin` WHERE adminId = :adminId]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	adminId : attributes.uriParams.adminId
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Json Response" doc:id="0b66c898-dc7c-4901-a36f-04c00e435d05" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "deleted the record"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

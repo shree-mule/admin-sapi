@@ -1,0 +1,56 @@
+#%RAML 1.0
+title: admin-sapi
+
+mediaType: application/json
+
+uses: 
+  mylib: /exchange_modules/d2d97777-b4e2-416d-86db-77cd5a0da3e4/common-fragment/1.0.1/common-fragment.raml
+  
+
+protocols:
+  - HTTP
+  - HTTPS
+
+types:
+  AdminDeregisterRequest: !include /dataTypes/AdminDeregResponseDataType.raml
+  PostAdminRegRequest: !include /dataTypes/PostAdminRegRequestDataType.raml
+  PostAdminRegResponse: !include /dataTypes/PostAdminRegResponseDataType.raml
+
+/registerAdmin:
+  post:
+    is: [mylib.common-error, mylib.client-id-secret-required]
+    body:
+      application/json:
+        type: PostAdminRegRequest
+    responses:
+      201:
+        body:
+          application/json:
+            type: PostAdminRegResponse
+            
+
+/deregisterAdmin/{adminId}:
+  delete:
+    is: [mylib.common-error, mylib.client-id-secret-required]
+    responses:
+      200:
+        body:
+          application/json:
+            type: AdminDeregisterRequest
+
+/verifyAdmin:
+  get:
+    is: [mylib.common-error, mylib.client-id-secret-required]
+    queryParameters:
+      username:
+        type: string
+        required: true
+      password:
+        type: string
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              [true]

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="global_error_handler" doc:id="7201b9d1-91f5-4e5a-b196-9536d20128df" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="799f2678-2cb7-4230-92cd-f8268d3c6e5b" type="DB:BAD_SQL_SYNTAX">
+			<set-variable value="500" doc:name="Set Variable" doc:id="185326f7-5730-4aea-9e32-5ea6da123acb" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="c8002bed-ed1a-46c4-841b-c4ad5916b85f" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": vars.httpstatus,
+	"type": error.errorType.identifier,
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="9f30f5b4-2059-4c72-8eb4-2db91e52a858" message='#[payload ++ {"status": "ERROR"}]'/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0f8434b7-e248-4c2b-a47b-e397b69c3435" type="DB:CONNECTIVITY">
+			<set-variable value="500" doc:name="Set Variable" doc:id="d0f55549-7392-414c-a116-e4099792cefd" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="a1815b95-2616-420d-a48d-82e743c3feb8" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": vars.httpstatus,
+	"type": error.errorType.identifier,
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="b57624f7-a6b1-46c6-836d-0ff50cb12736" message='#[payload ++ {"status": "ERROR"}]'/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="21bb7f65-4a47-44c4-8b4c-b429bbc7034a" type="DB:QUERY_EXECUTION">
+			<set-variable value="500" doc:name="Set Variable" doc:id="f8e1cf94-7a75-43fe-bc2f-191f773dfe5b" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="ad5c64e9-8361-4b09-ba31-4cf521be22bd" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": vars.httpstatus,
+	"type": error.errorType.identifier,
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="5cb46647-831c-4f67-8db3-4d5d0ee775c2" message='#[payload ++ {"status": "ERROR"}]'/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="32249633-bf36-4676-b693-3e4aae7e9a6a" type="DB:RETRY_EXHAUSTED">
+			<set-variable value="500" doc:name="Set Variable" doc:id="fdc8220f-a4ca-4d6a-a7fc-e1ae3e5b9e7c" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="cd7aaf78-354c-45e9-bf96-e913dda5a8d0" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": vars.httpstatus,
+	"type": error.errorType.identifier,
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="08307a95-31cb-4620-87dd-3284e8ea849f" message='#[payload ++ {"status": "ERROR"}]'/>
+		</on-error-propagate>
+	</error-handler>
+</mule>

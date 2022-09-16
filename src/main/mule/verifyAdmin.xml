@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="verifyAdminSub" doc:id="db55e3c2-8b19-4d95-974f-45fce24fda6d" >
+		<set-variable value="#[attributes.queryParams.password]" doc:name="Set Variable" doc:id="1e1dc6ba-dfee-418a-82b9-3511efbdc83e" variableName="pass"/>
+		<db:select doc:name="Select" doc:id="b67a4ace-3a62-460b-bc34-77ae0bf1b8e0" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT `adminId`, `adminName`, `adminUsername`, `adminPassword`, `hospId` FROM `Admin` WHERE (`adminUsername` = :admusername) ]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	admusername : attributes.queryParams.username
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="3848d131-6d58-49be-95ce-1dfd8ba96f16" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="d43ff496-b3c0-46ac-97b6-e3cd78accecb" >
+			<when expression="sizeOf(payload) &gt; 0">
+				<ee:transform doc:name="Transform Message" doc:id="72d88254-5fec-4092-956d-0b090d6d1189" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if(payload[0].adminPassword == vars.pass)
+	true
+else
+	false]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="f7d76f17-40a6-48de-9099-af769622324a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : "invalid username"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>

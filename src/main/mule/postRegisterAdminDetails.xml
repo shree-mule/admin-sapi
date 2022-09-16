@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="postRegisterAdminDetailsSub_Flow" doc:id="c438525e-c851-43e4-b138-52862de0941e" >
+		<logger level="INFO" doc:name="Process Starts" doc:id="e90eae4b-43a3-4da7-aa44-81632b7fe0b2" message="starts"/>
+		<db:insert doc:name="Insert" doc:id="8eb71632-1028-4468-9115-a10358ea07d6" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO `Admin`(`adminId`, `adminName`, `adminUsername`, `adminPassword`, `hospId`) VALUES (:adminId, :adminName, :adminUsername, :adminPassword, :hospId);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+  adminId: payload.adminId,
+  adminName: payload.adminName,
+  adminUsername: payload.adminUsername,
+  adminPassword: payload.adminPassword,
+  hospId: payload.hospId
+  
+}]]]></db:input-parameters>
+		</db:insert>
+		<choice doc:name="Choice" doc:id="861d2fe3-1a29-4582-8242-b5047d4c7da7" >
+			<when expression="#[payload.affectedRows &gt; 0]">
+				<ee:transform doc:name="Transform Message" doc:id="da7933c5-51c3-451e-9231-e67ae18c9cc0">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "Record Created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="e587b81e-3376-4d9a-a134-ec0a45387b67" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "message": "unable to create admin"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>
